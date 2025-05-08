@@ -1,0 +1,210 @@
+/* style.css */
+
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+}
+
+.info-panel {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #222;
+  color: white;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.team {
+  text-align: center;
+}
+
+.score {
+  font-size: 2rem;
+  margin-top: 5px;
+}
+
+.timer {
+  text-align: center;
+}
+
+.time-round {
+  font-size: 1rem;
+  margin-top: 5px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+#round-timer {
+  font-size: 2.5rem;
+}
+
+.game-board {
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(20, 1fr);
+  width: 80vmin;
+  height: 80vmin;
+  margin: 20px auto;
+  background-color: white;
+  border: 2px solid #333;
+  position: relative;
+}
+
+.cell {
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  user-select: none;
+}
+
+.cell.team1 {
+  border: 2px solid blue;
+}
+
+.cell.team2 {
+  border: 2px solid orange;
+}
+
+.cell.condition {
+  animation: shake 0.3s;
+  border: 2px solid yellow;
+}
+
+.cell.helper {
+  border: 2px solid yellow
+}
+
+.cell.invalid {
+  animation: shakeInvalid 0.3s !important;
+  border: 2px solid red;
+}
+
+.cell.preview {
+  border: 2px dashed gray;
+  opacity: 0.6;
+}
+
+.cell.valid {
+  animation: validGlow 0.4s ease-out;
+  border: 2px solid limegreen;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  20% { transform: translate(-1px, -2px) rotate(-1deg); }
+  40% { transform: translate(-3px, 0px) rotate(1deg); }
+  60% { transform: translate(3px, 2px) rotate(0deg); }
+  80% { transform: translate(1px, -1px) rotate(1deg); }
+  100% { transform: translate(-1px, 2px) rotate(-1deg); }
+}
+
+@keyframes shakeInvalid {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  20% { transform: translate(-1px, -2px) rotate(-1deg); }
+  40% { transform: translate(-3px, 0px) rotate(1deg); }
+  60% { transform: translate(3px, 2px) rotate(0deg); }
+  80% { transform: translate(1px, -1px) rotate(1deg); }
+  100% { transform: translate(-1px, 2px) rotate(-1deg); }
+}
+
+@keyframes validGlow {
+  0% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.special-condition {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 20px 40px;
+  border-radius: 20px;
+  display: none;
+  opacity: 0;
+  z-index: 10;
+  color: #333;
+  transition: opacity 0.5s ease;
+}
+
+/* Tambahan untuk countdown */
+#countdown {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 8rem;
+  font-weight: bold;
+  color: #333;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 30px 60px;
+  border-radius: 30px;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 100;
+  justify-content: center;
+  text-align: center;
+}
+
+.end-game-summary {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeInScale 0.6s ease-out forwards;
+}
+
+.summary-content {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.summary-content h2 {
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.summary-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.summary-content td, .summary-content th {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+@keyframes fadeInScale {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
