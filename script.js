@@ -27,10 +27,11 @@ let alphabetCounter = { 1: 0, 2: 0 };
 let times = { 1: 0, 2: 0 };
 let currentRound = 1;
 let conditionRounds = 0;
+let winnerTeam = '';
 
-let gridCol = 20;
-let gridRow = 20;
-let amountRowAdded = 20;
+let gridCol = 18;
+let gridRow = 18;
+let amountRowAdded = 18;
 let cells = [];
 let wordIndexes = [];
 let backupWords = [];
@@ -71,7 +72,7 @@ function createGrid() {
 }
 
 function removeRow(amount = 1) {
-  if (amountRowAdded > 20) amountRowAdded -= amount, gridRow -= amount;
+  if (amountRowAdded > 18) amountRowAdded -= amount, gridRow -= amount;
   for (let i = 0; i < gridCol*amount; i++) {
     const cell = cells.pop();
     gameBoard.removeChild(cell);
@@ -116,14 +117,14 @@ function updateTimers() {
 }
 
 function returnRow() {
-if (amountRowAdded > 20 && currentPos.y > 19) {
+if (amountRowAdded > 18 && currentPos.y > 19) {
   const discardedRow = amountRowAdded - (currentPos.y + 2);
   removeRow(discardedRow);
   amountRowAdded = currentPos.y + 2;
 } else {
-  const discardedRow = amountRowAdded - 20;
+  const discardedRow = amountRowAdded - 18;
   removeRow(discardedRow);
-  amountRowAdded = 20;
+  amountRowAdded = 18;
 }
 }
 
@@ -164,6 +165,7 @@ function resetGame() {
   score2.textContent = '0';
   randomCondition = '';
   backwardWord = '';
+  winnerTeam = '';
   roundTime = 30;
   gameTime = 600;
   currentRound = 1;
@@ -233,6 +235,15 @@ function startCountdown(text) {
         score2.textContent = points[2];
         times[3] = times[1];
         times[4] = times[2];
+        if (points[1] === points[2]) {
+          if (times[3] < times[4]) {
+            winnerTeam = 'TEAM 1';
+          } else {
+            winnerTeam = 'TEAM 2';
+          }
+        } else {
+          winnerTeam = points[1] > points[2] ? 'TEAM 1' : 'TEAM 2';
+        }
         for (let i = 1; i < 3; i++) {
           const minutes = Math.floor(times[i] / 60);
           const seconds = times[i] % 60;
@@ -245,7 +256,6 @@ function startCountdown(text) {
         roundTimerDisplay.textContent = 0;
         gameActive = false;
         endgame = true;
-        resetBacksound();
         setTimeout(() => {
           const stats = generateStats();
           showEndGameSummary(stats);
@@ -330,7 +340,7 @@ function moveBackDomino() {
     }
   }
   
-  if (currentPos.y < amountRowAdded && amountRowAdded > 20) {
+  if (currentPos.y < amountRowAdded && amountRowAdded > 18) {
     if ((currentPos.x === gridCol - 1  || currentPos.x === 0) && (justMovedDown || letRemoveRow)) {
     removeRow();
     }
@@ -668,7 +678,7 @@ setInterval(() => {
       currentDirection = backupPos.dir;
       justMovedDown = backupPos.moveDown;
       additional()
-      if (amountRowAdded > 20) {
+      if (amountRowAdded > 18) {
         returnRow();
       }
       start = true;
@@ -799,7 +809,7 @@ function generateStats() {
     },
     conditions: conditionRounds,
     rounds: currentRound,
-    winner: points[1] < points[2] ? 'TEAM 1' : 'TEAM 2'
+    winner: winnerTeam
   };
 }
 
