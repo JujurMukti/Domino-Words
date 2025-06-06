@@ -5,6 +5,9 @@ const roundTimerDisplay = document.getElementById('round-timer');
 const gameTimerDisplay = document.getElementById('game-timer');
 const specialCondition = document.getElementById('specialCondition');
 const countdownElement = document.getElementById('countdown');
+const roundText = document.getElementById('round-counter');
+const teamName1 = document.querySelector('#team1 h2');
+const teamName2 = document.querySelector('#team2 h2');
 
 const soundValid = document.getElementById("sound-valid");
 const soundWrong = document.getElementById("sound-wrong");
@@ -41,12 +44,15 @@ let gameTime = 600;
 let typingWord = '';
 let randomCondition = '';
 let backwardWord = '';
+let teamName = teamName1.textContent;
+let teamEditor = 0;
 let wordList = [];
 let usedWords = new Set();
 let currentPos = { x: 0, y: 0 };
 let backupPos = { x: 0, y: 0, dir: 0, moveDown: false };
 let currentDirection = 0; // 0: right, 1: left
 let conditionCounter = 0;
+let editorMode = false;
 let justMovedDown = false;
 let letRemoveRow = false;
 let start = false;
@@ -109,11 +115,7 @@ function updateTimers() {
   const minutes = Math.floor(gameTime / 60);
   const seconds = gameTime % 60;
   gameTimerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-  const roundText = document.getElementById('round-counter');
-  if (roundText) {
   roundText.textContent = `ROUND: ${currentRound}`;
-  }
 }
 
 function returnRow() {
@@ -176,6 +178,7 @@ function resetGame() {
   backupPos = { x: 0, y: 0, dir: 0, moveDown: false };
   currentDirection = 0;
   conditionCounter = 0;
+  teamEditor = 0;
   usedWords.clear();
   cells.forEach(cell => {
     cell.textContent = '';
@@ -184,6 +187,7 @@ function resetGame() {
   wordIndexes = [];
   backupWords = [];
   previewPositions = [];
+  editorMode = false;
   start = false;
   gameActive = false;
   backup = false;
@@ -488,7 +492,7 @@ function backward(word) {
 function playSound(sound) {
   sound.pause();
   sound.currentTime = 0;
-  sound.volume = 0.5;
+  sound.volume = 1;
   sound.play();
 }
 
@@ -543,14 +547,98 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  if (e.key === 'Shift') { 
+    if (!gameActive) {
+      if (editorMode) {
+        teamEditor = 0;
+        editorMode = false;
+        gameTimerDisplay.textContent = "10:00";
+        roundText.textContent = "ROUND: 1";
+        teamName1.style.color = "#fff"
+        teamName2.style.color = "#fff"
+      } else {
+        editorMode = true;
+        teamName = '';
+        gameTimerDisplay.textContent = "MODE";
+        roundText.textContent = "EDITOR";
+        if (teamEditor === 0) {
+          teamName1.style.color = "#fd6f6f"
+          teamName2.style.color = "#fff"
+        } else {
+          teamName1.style.color = "#fff"
+          teamName2.style.color = "#fd6f6f"
+        }
+    }
+    }
+  }
+  
+  if (e.key === 'Control') {
+    if (!gameActive && editorMode) {
+      if (teamEditor === 0) {
+        teamEditor = 1;
+        teamName1.style.color = "#fff"
+        teamName2.style.color = "#fd6f6f"
+      } else {
+        teamEditor = 0;
+        teamName1.style.color = "#fd6f6f"
+        teamName2.style.color = "#fff"
+      }
+    teamName = "";
+    }
+  }
+
   if (e.code === 'Space') {
     if (endgame) return;
 
-    if (!gameActive && !isCountingDown) {
-      startCountdown('START!');
+    if (!gameActive) {
+      if (editorMode) {
+        if (!teamName.endsWith(' ')) teamName += ' ';
+      } else if (!isCountingDown) startCountdown('START!');
     }
     e.preventDefault();
     return;
+  }
+
+   if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
+    if (!gameActive) {
+      if (editorMode) {
+        teamName += e.key.toUpperCase();
+        teamEditor === 0 ? teamName1.textContent = teamName : teamName2.textContent = teamName;
+      }
+      else return;
+    } else {
+      playSound(soundTyping);
+      const letter = e.key.toUpperCase();
+      typingWord += letter;
+      const index = getIndex(currentPos.x, currentPos.y);
+      const cell = cells[index];
+      cell.textContent = letter;
+      cell.classList.add('preview');
+      previewPositions.push(index);
+      moveDomino();
+    }
+  }
+
+  if (e.key === 'Backspace') {
+    if (!gameActive) {
+      if (editorMode) {
+        teamName = teamName.slice(0, -1);
+        teamEditor === 0 ? teamName1.textContent = teamName : teamName2.textContent = teamName;
+      }
+      else return;
+    } else { 
+      if (typingWord.length > 0) {
+        playSound(soundTyping);
+        typingWord = typingWord.slice(0, -1);
+        const lastIndex = previewPositions.pop();
+        const cell = cells[lastIndex];
+        cell.textContent = '';
+        cell.classList.remove('invalid');
+        cell.classList.remove('preview');
+        moveBackDomino();
+      }
+      return;
+    }
   }
 
   if (!gameActive) return;
@@ -631,32 +719,6 @@ document.addEventListener('keydown', (e) => {
         shakeCells(previewPositions);
       }
     } 
-  }
-
-  if (e.key === 'Backspace') {
-    if (typingWord.length > 0) {
-      playSound(soundTyping);
-      typingWord = typingWord.slice(0, -1);
-      const lastIndex = previewPositions.pop();
-      const cell = cells[lastIndex];
-      cell.textContent = '';
-      cell.classList.remove('invalid');
-      cell.classList.remove('preview');
-      moveBackDomino();
-    }
-    return;
-  }
-  
-  if (e.key.length === 1 && e.key.match(/[a-zA-Z]/)) {
-    playSound(soundTyping);
-    const letter = e.key.toUpperCase();
-    typingWord += letter;
-    const index = getIndex(currentPos.x, currentPos.y);
-    const cell = cells[index];
-    cell.textContent = letter;
-    cell.classList.add('preview');
-    previewPositions.push(index);
-    moveDomino();
   }
 });
 
