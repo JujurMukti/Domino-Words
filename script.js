@@ -40,7 +40,7 @@ let wordIndexes = [];
 let backupWords = [];
 let currentTeam = 1;
 let roundTime = 30;
-let gameTime = 600;
+let gameTime = 10;
 let typingWord = '';
 let randomCondition = '';
 let backwardWord = '';
@@ -241,12 +241,12 @@ function startCountdown(text) {
         times[4] = times[2];
         if (points[1] === points[2]) {
           if (times[3] < times[4]) {
-            winnerTeam = 'TEAM 1';
+            winnerTeam = teamName1.textContent;
           } else {
-            winnerTeam = 'TEAM 2';
+            winnerTeam = teamName2.textContent;
           }
         } else {
-          winnerTeam = points[1] > points[2] ? 'TEAM 1' : 'TEAM 2';
+          winnerTeam = points[1] > points[2] ? teamName1.textContent : teamName2.textContent;
         }
         for (let i = 1; i < 3; i++) {
           const minutes = Math.floor(times[i] / 60);
@@ -797,13 +797,13 @@ function showEndGameSummary(stats) {
       <thead>
         <tr>
           <th rowspan="2">Stat</th>
-          <th rowspan="2">Team 1</th>
-          <th rowspan="2">Team 2</th>
+          <th rowspan="2">${teamName1.textContent}</th>
+          <th rowspan="2">${teamName2.textContent}</th>
           <th colspan="2">Total</th>
         </tr>
         <tr>
-          <th rowspan="2">Team 1</th>
-          <th rowspan="2">Team 2</th>
+          <th rowspan="2">${teamName1.textContent}</th>
+          <th rowspan="2">${teamName2.textContent}</th>
         </tr>
       </thead>
       <tbody>
